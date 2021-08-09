@@ -1,3 +1,8 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
 body {
     font-size: 18px;
     color: #6c767d;
@@ -114,26 +119,29 @@ strike {
     box-shadow: 5px -2px 15px 0px rgb(203, 221, 232);
 }
 
-.social {
-    padding-left: 0;
-}
-
-.social p {
-    margin-bottom: 0;
-}
-
 .social li {
     list-style: none;
     float: left;
-    margin-right: 15px;
+    margin: 0 15px 15px 0;
+    width: 81px;
+}
+
+.social i {
+    font-size: 70px;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+}
+
+.social p {
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+    margin: 0;
 }
 
 .card-text {
     margin-bottom: 20px;
-}
-
-.social .fa {
-    font-size: 24px;
 }
 
 .photo-bg {
@@ -144,8 +152,12 @@ strike {
     background-size: cover;
 }
 
+footer {
+    margin-top: 30px;
+}
+
 footer p {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 @media (max-width: 1199px) {
@@ -155,7 +167,7 @@ footer p {
     h1 {
         font-size: 24px;
     }
-    h2, .social .fa {
+    h2 {
         font-size: 20px;
     }
     h3 {
