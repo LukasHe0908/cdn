@@ -114,6 +114,11 @@ strike {
     box-shadow: 5px -2px 15px 0px rgb(203, 221, 232);
 }
 
+.social {
+    padding: 0;
+    margin: 0;
+}
+
 .social li {
     list-style: none;
     float: left;
