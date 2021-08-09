@@ -91,9 +91,14 @@
     </div>
 
     <!--aplayer-->
-    <meting-js server="netease" type="playlist" id="3136952023" mini="true" fixed="true"></meting-js>
-    <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
+    <div id="aplayer" class="aplayer" data-order="random" data-id="3136952023" data-server="netease"
+        data-type="playlist" data-fixed="true" data-autoplay="true" data-volume="0.8"></div>
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script>
+    <script>
+        var meting_api = 'https://api.mizore.cn/meting/api.php?server=:server&type=:type&id=:id';
+    </script>
     <!--end aplayer-->
 </body>
 
