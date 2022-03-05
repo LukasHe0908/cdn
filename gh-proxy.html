@@ -139,7 +139,7 @@
     }
 
     document.getElementsByName('github-preview-url')[0].oncontextmenu = e => {
-        let url = location.href + '/' + document.getElementsByName('github-url')[0].value;
+        let url = location.href + document.getElementsByName('github-url')[0].value;
         navigator.clipboard.writeText(url);
         let ele = document.createElement('div');
         ele.id = 'copy-prompt';
