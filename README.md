@@ -1,1 +1,1 @@
-# This is my CDN warehouse
+# This is my CDN repository.
