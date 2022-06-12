@@ -5,7 +5,7 @@ const ASSET_URL = "https://lukashe0908.github.io/cdn/proxy.html";
 const PREFIX = "/";
 
 // CF proxy all, 一切给CF代理，true/false
-const CFproxy = true
+const CFproxy = true;
 
 /**
  * @param {any} body
@@ -35,17 +35,24 @@ async function fetchHandler(e) {
         let path = urlObj.href.replace(urlObj.origin + "/", "");
         path = path.replace(/http:/g, "http:/");
         path = path.replace(/https:/g, "https:/");
+        let referer = "";
+        if (path.substring(0, 1) == ";") {
+            let path_split = path.split(";");
+            console.log(path_split[1]);
+            referer = path_split[1];
+            path = path_split[2];
+        }
         console.log(path);
 
-        return fetchAndApply(path,req);
+        return fetchAndApply(path, req, referer);
     } else {
         return fetch(ASSET_URL);
         return Response.redirect("https://www.baidu.com/", 302);
     }
 }
 
-async function fetchAndApply(host, request) {
-    console.log(request)
+async function fetchAndApply(host, request, referer) {
+    console.log(request);
     let f_url = new URL(request.url);
     f_url.href = host;
 
@@ -57,20 +64,21 @@ async function fetchAndApply(host, request) {
         let body = request.body;
         let request_headers = request.headers;
         let new_request_headers = new Headers(request_headers);
-        new_request_headers.set('Host', f_url.host);
-        new_request_headers.set('Referer', '');
+        new_request_headers.set("Host", f_url.host);
+        new_request_headers.set("Referer", referer);
 
         response = await fetch(f_url.href, {
             method: method,
             body: body,
-            headers: new_request_headers
+            headers: new_request_headers,
         });
     }
 
     let out_headers = new Headers(response.headers);
-    if (out_headers.get('Content-Disposition')=='attachment') out_headers.delete('Content-Disposition');
+    if (out_headers.get("Content-Disposition") == "attachment")
+        out_headers.delete("Content-Disposition");
     let out_body = null;
-    let contentType = out_headers.get('Content-Type');
+    let contentType = out_headers.get("Content-Type");
     if (contentType.includes("application/text")) {
         out_body = await response.text();
         // while (out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
@@ -81,12 +89,12 @@ async function fetchAndApply(host, request) {
         out_body = await response.body;
     }
 
-    out_headers.set('access-control-allow-origin', '*')
-console.log(out_headers.get('content-length'))
+    out_headers.set("access-control-allow-origin", "*");
+    console.log(out_headers.get("content-length"));
     let out_response = new Response(out_body, {
         status: response.status,
-        headers: out_headers
-    })
+        headers: out_headers,
+    });
 
     return out_response;
 }
