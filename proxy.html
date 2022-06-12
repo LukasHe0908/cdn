@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<style>
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    p {
+        word-break: break-all;
+    }
+
+    h1 {
+        font-size: 2.5em;
+    }
+
+    a {
+        transition: color .2s ease-in-out, border-bottom-color .2s ease-in-out;
+        border-bottom: solid #212121 1px;
+        color: #212121;
+        text-decoration: none;
+    }
+
+    .flex {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .block {
+        display: block;
+        position: relative;
+    }
+
+    .url {
+        font-size: 1.3em;
+        padding: 10px 10px 10px 5px;
+        position: relative;
+        width: 300px;
+        border: none;
+        border-bottom: 1px solid #bfbfbf;
+    }
+
+    input:focus {
+        outline: none;
+    }
+
+    .bar {
+        content: '';
+        height: 2px;
+        width: 100%;
+        bottom: 0;
+        position: absolute;
+        background: #00bfb3;
+        transition: 0.2s ease transform;
+        -moz-transition: 0.2s ease transform;
+        -webkit-transition: 0.2s ease transform;
+        transform: scaleX(0);
+    }
+
+    .url:focus~.bar {
+        transform: scaleX(1);
+    }
+
+    .btn {
+        line-height: 38px;
+        background-color: #00bfb3;
+        color: #fff;
+        white-space: nowrap;
+        text-align: center;
+        font-size: 1.3em;
+        border: none;
+        border-radius: 2px;
+        cursor: pointer;
+        padding: 2px 35px;
+        margin: 30px 0 0;
+    }
+
+    #copy-prompt {
+        position: absolute;
+        left: 50%;
+        top: 5vh;
+        transform: translateX(-50%);
+        font-size: 1.2em;
+        padding: 8px 20px 10px;
+        color: #3c763d;
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        border-radius: 4px;
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity linear 200ms;
+    }
+
+    #copy-prompt::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        display: block;
+        height: 2px;
+        background-color: #3c763d;
+        transition: var(--copy-prompt_transition);
+        width: var(--copy-prompt_width, 100%);
+    }
+</style>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>GitHub 文件加速</title>
+    <link rel="shortcut icon" href="data:" type="image/x-icon">
+</head>
+
+<body class="flex">
+    <h1 style="margin-bottom: 50px">GitHub 文件加速</h1>
+    <form action="./" method="get" style="padding-bottom: 40px" target="_blank" class="flex" onsubmit="toSubmit(event)">
+        <label class="block" style="width: fit-content">
+            <input class="block url" name="github-url" type="text" placeholder="Github链接"
+                required>
+            <div class="bar"></div>
+        </label>
+        <input class="block btn" name="github-preview-url" type="submit" value="下载">
+    </form>
+    <a href="https://github.com/hunshcn/gh-proxy" target="_blank">源项目:&ensp;hunshcn/gh-proxy</a>
+</body>
+
+<script>
+    function toSubmit(e) {
+        e.preventDefault();
+        window.open('/' + document.getElementsByName('github-url')[0].value);
+        return false;
+    }
+
+    document.getElementsByName('github-preview-url')[0].oncontextmenu = e => {
+        let url = location.href + document.getElementsByName('github-url')[0].value;
+        navigator.clipboard.writeText(url);
+        let ele = document.createElement('div');
+        ele.id = 'copy-prompt';
+        ele.innerHTML = '链接复制成功';
+        document.body.appendChild(ele);
+
+        let turnOffDelay = 2000;
+        setTimeout(() => {
+            ele.style.setProperty('opacity', '1');
+            ele.style.setProperty('--copy-prompt_transition', `width linear ${turnOffDelay}ms`);
+            ele.style.setProperty('--copy-prompt_width', '0%');
+            setTimeout(() => {
+                ele.style.setProperty('opacity', '0');
+                setTimeout(() => {
+                    document.body.removeChild(ele);
+                }, parseFloat(getComputedStyle(ele).transitionDuration) * 1000);
+            }, turnOffDelay);
+        }, 0);
+
+        return false;
+    };
+</script>
+
+</html>
