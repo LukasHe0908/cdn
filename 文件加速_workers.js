@@ -53,8 +53,9 @@ async function fetchHandler(e) {
 
 async function fetchAndApply(host, request, referer) {
     console.log(request);
-    let f_url = new URL(request.url);
-    f_url.href = host;
+    let f_url = new URL(host);
+    // let f_url = new URL(request.url);
+    // f_url.href = host;
 
     let response = null;
     if (!CFproxy) {
