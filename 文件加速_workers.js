@@ -94,17 +94,17 @@ async function fetchAndApply(host, request, referer) {
     if (out_headers.get("Content-Disposition") == "attachment")
         out_headers.delete("Content-Disposition");
     let out_body = await response.body;
-    // let out_body = null;
-    // let contentType = out_headers.get("Content-Type");
-    // if (contentType.includes("application/text")) {
-    //     out_body = await response.text();
-    //     // while (out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
-    // } else if (contentType.includes("text/html")) {
-    //     out_body = await response.text();
-    //     // while (replace_path!='/'&&out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
-    // } else {
-    //     out_body = await response.body;
-    // }
+    let out_body = null;
+    let contentType = out_headers.get("Content-Type");
+    if (contentType.includes("application/text")) {
+        out_body = await response.text();
+        // while (out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
+    } else if (contentType.includes("text/html")) {
+        out_body = await response.text();
+        // while (replace_path!='/'&&out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
+    } else {
+        out_body = await response.body;
+    }
 
     out_headers.set("access-control-allow-origin", "*");
     let out_response = new Response(out_body, {
