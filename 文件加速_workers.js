@@ -35,12 +35,27 @@ async function fetchHandler(e) {
         let path = urlObj.href.replace(urlObj.origin + "/", "");
         path = path.replace(/http:/g, "http:/");
         path = path.replace(/https:/g, "https:/");
+        console.log(req.headers.get("referer"));
         let referer = "";
-        if (path.substring(0, 1) == ";") {
+        if (path.substring(0, 1) == ":") {
+            let path_split = path.split(":");
+            if (req.headers.get("referer")) {
+                referer = req.headers.get("referer");
+            }
+            let array = [];
+            for (let i = 0; i + 1 < path_split.length; i++) {
+                array[i] = path_split[i + 1];
+            }
+            path = array.join(":");
+        } else if (path.substring(0, 1) == ";") {
             let path_split = path.split(";");
             console.log(path_split[1]);
             referer = path_split[1];
-            path = path_split[2];
+            let array = [];
+            for (let i = 0; i + 2 < path_split.length; i++) {
+                array[i] = path_split[i + 2];
+            }
+            path = array.join(";");
         }
         console.log(path);
 
@@ -76,7 +91,8 @@ async function fetchAndApply(host, request, referer) {
     }
 
     let out_headers = new Headers(response.headers);
-    if (out_headers.get("Content-Disposition") == "attachment") out_headers.delete("Content-Disposition");
+    if (out_headers.get("Content-Disposition") == "attachment")
+        out_headers.delete("Content-Disposition");
     let out_body = await response.body;
     // let out_body = null;
     // let contentType = out_headers.get("Content-Type");
