@@ -14,7 +14,7 @@ const CFproxy = true;
  */
 function makeRes(body, status = 200, headers = {}) {
     headers["Access-Control-Allow-Methods"] = "GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH";
-    headers["Access-Control-Allow-Headers"] = "*";
+    headers["Access-Control-Allow-Headers"] = "*,Authorization";
     headers["Access-Control-Allow-Origin"] = "*";
     return new Response(body, { status, headers });
 }
@@ -109,7 +109,7 @@ async function fetchAndApply(host, request, referer) {
     // }
     
     out_headers.set("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH");
-    out_headers.set("Access-Control-Allow-Headers", "*");
+    out_headers.set("Access-Control-Allow-Headers", "*,Authorization");
     out_headers.set("Access-Control-Allow-Origin", "*");
     let out_response = new Response(out_body, {
         status: response.status,
