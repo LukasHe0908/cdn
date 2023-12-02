@@ -106,8 +106,9 @@ async function fetchAndApply(host, request, referer) {
     // } else {
     //     out_body = await response.body;
     // }
-
-    out_headers.set("access-control-allow-origin", "*");
+    
+    out_headers.set("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH");
+    out_headers.set("Access-Control-Allow-Origin", "*");
     let out_response = new Response(out_body, {
         status: response.status,
         headers: out_headers,
