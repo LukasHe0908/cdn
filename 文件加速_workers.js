@@ -13,7 +13,8 @@ const CFproxy = true;
  * @param {Object<string, string>} headers
  */
 function makeRes(body, status = 200, headers = {}) {
-    headers["access-control-allow-origin"] = "*";
+    headers["Access-Control-Allow-Methods"] = "GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH";
+    headers["Access-Control-Allow-Origin"] = "*";
     return new Response(body, { status, headers });
 }
 
