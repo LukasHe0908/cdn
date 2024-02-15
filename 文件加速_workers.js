@@ -1,8 +1,6 @@
 'use strict';
 
 const ASSET_URL = 'https://404.mise.eu.org/';
-// 前缀，如果自定义路由为example.com/gh/*，将PREFIX改为 '/gh/'，注意，少一个杠都会错！
-const PREFIX = '/';
 
 // CF proxy all, 一切给CF代理，true/false
 const CFproxy = true;
@@ -40,7 +38,10 @@ async function fetchHandler(e) {
     });
 
     return out_response;
-  } else if (urlObj.pathname !== PREFIX) {
+  } else if (
+    urlObj.pathname.startsWith('/http') ||
+    urlObj.pathname.startsWith('/;')
+  ) {
     let path = urlObj.href.replace(urlObj.origin + '/', '');
     path = path.replace(/http:/g, 'http:/');
     path = path.replace(/https:/g, 'https:/');
@@ -71,7 +72,6 @@ async function fetchHandler(e) {
     return fetchAndApply(path, req, referer);
   } else {
     return fetch(ASSET_URL);
-    return Response.redirect('https://www.baidu.com/', 302);
   }
 }
 
