@@ -40,14 +40,14 @@ async function fetchHandler(e) {
     return out_response;
   } else if (
     urlObj.pathname.startsWith('/http') ||
-    urlObj.pathname.startsWith('/:http') ||
-    urlObj.pathname.startsWith('/;')
+    urlObj.pathname.startsWith('/;') ||
+    urlObj.pathname.startsWith('/:http')
   ) {
     let path = urlObj.href.replace(urlObj.origin + '/', '');
     path = path.replace(/http:/g, 'http:/');
     path = path.replace(/https:/g, 'https:/');
     // console.log(req.headers.get('referer'));
-    let referer = '';
+    let referer = undefined;
     if (path.substring(0, 1) == ':') {
       let path_split = path.split(':');
       if (req.headers.get('referer')) {
@@ -92,7 +92,9 @@ async function fetchAndApply(host, request, referer) {
     let new_request_headers = new Headers(request_headers);
     new_request_headers.set('Host', f_url.host);
     new_request_headers.delete('Origin');
-    new_request_headers.set('Referer', referer);
+    referer
+      ? new_request_headers.set('Referer', referer)
+      : new_request_headers.delete('Referer');
 
     response = await fetch(f_url.href, {
       method: method,
