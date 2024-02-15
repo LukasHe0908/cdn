@@ -90,7 +90,7 @@ async function fetchAndApply(host, request, referer) {
     let request_headers = request.headers;
     let new_request_headers = new Headers(request_headers);
     new_request_headers.set('Host', f_url.host);
-    new_request_headers.set('Origin', undefined);
+    new_request_headers.remove('Origin');
     new_request_headers.set('Referer', referer);
 
     response = await fetch(f_url.href, {
