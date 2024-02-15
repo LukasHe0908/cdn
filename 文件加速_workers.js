@@ -40,6 +40,7 @@ async function fetchHandler(e) {
     return out_response;
   } else if (
     urlObj.pathname.startsWith('/http') ||
+    urlObj.pathname.startsWith('/:http') ||
     urlObj.pathname.startsWith('/;')
   ) {
     let path = urlObj.href.replace(urlObj.origin + '/', '');
