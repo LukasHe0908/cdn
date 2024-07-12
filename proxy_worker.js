@@ -11,47 +11,38 @@ const CFproxy = true;
  * @param {Object<string, string>} headers
  */
 function makeRes(body, status = 200, headers = {}) {
-  headers['Access-Control-Allow-Methods'] =
-    'GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH';
+  headers['Access-Control-Allow-Methods'] = 'GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH';
   headers['Access-Control-Allow-Headers'] = '*,Authorization';
   headers['Access-Control-Allow-Origin'] = '*';
   return new Response(body, { status, headers });
 }
 
-addEventListener('fetch', e => {
-  const ret = fetchHandler(e).catch(err =>
-    makeRes('cfworker error:\n' + err.stack, 502)
-  );
-  e.respondWith(ret);
-});
+export default {
+  async fetch(request, env) {
+    return fetchHandler(request).catch(err => makeRes('cfworker error:\n' + err.stack, 502));
+  },
+};
 
 /**
- * @param {FetchEvent} e
+ * @param {FetchRequest} e
  */
-async function fetchHandler(e) {
-  const req = e.request;
-  const urlStr = req.url;
+async function fetchHandler(request) {
+  const urlStr = request.url;
   const urlObj = new URL(urlStr);
   if (urlObj.pathname == '/generate_204') {
     let out_response = new Response('', {
       status: 204,
     });
-
     return out_response;
-  } else if (
-    urlObj.pathname.startsWith('/http') ||
-    urlObj.pathname.startsWith('/;') ||
-    urlObj.pathname.startsWith('/:http')
-  ) {
+  } else if (urlObj.pathname.startsWith('/http') || urlObj.pathname.startsWith('/;') || urlObj.pathname.startsWith('/:http')) {
     let path = urlObj.href.replace(urlObj.origin + '/', '');
-    path = path.replace(/http:/g, 'http:/');
-    path = path.replace(/https:/g, 'https:/');
-    // console.log(req.headers.get('referer'));
+    path = path.replace(/http:\/(?!\/)/g, 'http://');
+    path = path.replace(/https:\/(?!\/)/g, 'https://');
     let referer = undefined;
     if (path.substring(0, 1) == ':') {
       let path_split = path.split(':');
-      if (req.headers.get('referer')) {
-        referer = req.headers.get('referer');
+      if (request.headers.get('referer')) {
+        referer = request.headers.get('referer');
       }
       let array = [];
       for (let i = 0; i + 1 < path_split.length; i++) {
@@ -60,7 +51,6 @@ async function fetchHandler(e) {
       path = array.join(':');
     } else if (path.substring(0, 1) == ';') {
       let path_split = path.split(';');
-      // console.log(path_split[1]);
       referer = path_split[1];
       let array = [];
       for (let i = 0; i + 2 < path_split.length; i++) {
@@ -68,35 +58,38 @@ async function fetchHandler(e) {
       }
       path = array.join(';');
     }
-    // console.log(path);
 
-    return fetchAndApply(path, req, referer);
+    // Debug Request Info
+    // console.log(
+    //   `\n-----Request-----\nURL:             ${urlStr}\nOrigin Referer:  ${request.headers.get(
+    //     'referer'
+    //   )}\nChanged Referer: ${referer}\nProxy URL:       ${path}\n-----------------`
+    // );
+    // Debug Request Detail
+    // console.log(request);
+
+    return fetchAndApply(path, request, referer);
   } else {
     return fetch(ASSET_URL);
   }
 }
 
 async function fetchAndApply(host, request, referer) {
-  // console.log(request);
-  let f_url = new URL(host);
-  // let f_url = new URL(request.url);
-  // f_url.href = host;
+  let new_url = new URL(host);
 
   let response = null;
   if (!CFproxy) {
-    response = await fetch(f_url, request);
+    response = await fetch(new_url, request);
   } else {
     let method = request.method;
     let body = request.body;
     let request_headers = request.headers;
     let new_request_headers = new Headers(request_headers);
-    new_request_headers.set('Host', f_url.host);
+    new_request_headers.set('Host', new_url.host);
     new_request_headers.delete('Origin');
-    referer
-      ? new_request_headers.set('Referer', referer)
-      : new_request_headers.delete('Referer');
+    referer ? new_request_headers.set('Referer', referer) : new_request_headers.delete('Referer');
 
-    response = await fetch(f_url.href, {
+    response = await fetch(new_url.href, {
       method: method,
       body: body,
       headers: new_request_headers,
@@ -104,25 +97,10 @@ async function fetchAndApply(host, request, referer) {
   }
 
   let out_headers = new Headers(response.headers);
-  if (out_headers.get('Content-Disposition') == 'attachment')
-    out_headers.delete('Content-Disposition');
+  if (out_headers.get('Content-Disposition') == 'attachment') out_headers.delete('Content-Disposition');
   let out_body = await response.body;
-  // let out_body = null;
-  // let contentType = out_headers.get("Content-Type");
-  // if (contentType.includes("application/text")) {
-  //     out_body = await response.text();
-  //     // while (out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
-  // } else if (contentType.includes("text/html")) {
-  //     out_body = await response.text();
-  //     // while (replace_path!='/'&&out_body.includes(replace_path)) out_body = out_body.replace(replace_path, replaced_path);
-  // } else {
-  //     out_body = await response.body;
-  // }
 
-  out_headers.set(
-    'Access-Control-Allow-Methods',
-    'GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH'
-  );
+  out_headers.set('Access-Control-Allow-Methods', 'GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH');
   out_headers.set('Access-Control-Allow-Headers', '*,Authorization');
   out_headers.set('Access-Control-Allow-Origin', '*');
   out_headers.set('Access-Control-Max-Age', '86400');
