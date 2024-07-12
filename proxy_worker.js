@@ -24,7 +24,7 @@ export default {
 };
 
 /**
- * @param {FetchRequest} e
+ * @param {FetchRequest} request
  */
 async function fetchHandler(request) {
   const urlStr = request.url;
