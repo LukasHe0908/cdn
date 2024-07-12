@@ -19,7 +19,7 @@ function makeRes(body, status = 200, headers = {}) {
 
 export default {
   async fetch(request, env) {
-    return fetchHandler(request).catch(err => makeRes('cfworker error:\n' + err.stack, 502));
+    return fetchHandler(request).catch(err => makeRes('Function Error:\n' + err.stack, 502));
   },
 };
 
