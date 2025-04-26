@@ -29,55 +29,50 @@ export default {
 async function fetchHandler(request) {
   const urlStr = request.url;
   const urlObj = new URL(urlStr);
-  if (urlObj.pathname == '/generate_204') {
-    let out_response = new Response('', {
-      status: 204,
-    });
-    return out_response;
-  } else if (urlObj.pathname.startsWith('/http') || urlObj.pathname.startsWith('/;') || urlObj.pathname.startsWith('/:http')) {
-    let path = urlObj.href.replace(urlObj.origin + '/', '');
-    path = path.replace(/http:\/(?!\/)/g, 'http://');
-    path = path.replace(/https:\/(?!\/)/g, 'https://');
-    let referer = undefined;
-    if (path.substring(0, 1) == ':') {
-      let path_split = path.split(':');
-      if (request.headers.get('referer')) {
-        referer = request.headers.get('referer');
-      }
-      let array = [];
-      for (let i = 0; i + 1 < path_split.length; i++) {
-        array[i] = path_split[i + 1];
-      }
-      path = array.join(':');
-    } else if (path.substring(0, 1) == ';') {
-      let path_split = path.split(';');
-      referer = path_split[1];
-      let array = [];
-      for (let i = 0; i + 2 < path_split.length; i++) {
-        array[i] = path_split[i + 2];
-      }
-      path = array.join(';');
-    }
+  let path = urlObj.href.replace(urlObj.origin + '/', '');
+  path = path.replace(/http:\/(?!\/)/g, 'http://');
+  path = path.replace(/https:\/(?!\/)/g, 'https://');
+  let redirect = false;
 
-    // Debug Request Info
-    // console.log(
-    //   `\n-----Request-----\nURL:             ${urlStr}\nOrigin Referer:  ${request.headers.get(
-    //     'referer'
-    //   )}\nChanged Referer: ${referer}\nProxy URL:       ${path}\n-----------------`
-    // );
-    // Debug Request Detail
-    // console.log(request);
+  if (path == 'generate_204') {
+    return makeRes('', 204);
+  }
+  // /all/:others
+  if (path.startsWith('all/')) {
+    path = path.slice(4);
+    redirect = true;
+  }
+  // /:link
+  if (path.startsWith('http')) {
+    return fetchAndApply(path, request, { follow_redirect: redirect });
+  }
+  // /set_referer/:referer header/:link
+  if (path.startsWith('set_referer/')) {
+    const [, ref, ...rest] = path.split('/');
+    const realUrl = rest.join('/');
 
-    return fetchAndApply(path, request, referer);
-  } else {
-    return fetch(ASSET_URL);
+    return fetchAndApply(realUrl, request, { follow_redirect: redirect, referer: ref });
+  }
+  // /keep_referer/:link
+  if (path.startsWith('keep_referer/')) {
+    const realUrl = path.slice('keep_referer/'.length);
+    const referer = request.headers.get('referer');
+    return fetchAndApply(realUrl, request, { follow_redirect: redirect, referer: referer });
+  }
+  try {
+    const resp = await fetch(ASSET_URL);
+    return makeRes(resp.data, resp.status, resp.headers);
+  } catch (error) {
+    return makeRes('Error:\n' + error, 502);
   }
 }
 
-async function fetchAndApply(host, request, referer) {
+async function fetchAndApply(host, request, options = {}) {
   let new_url = new URL(host);
 
   let response = null;
+  const referer = options.referer;
+  const follow_redirect = options.follow_redirect !== undefined ? options.follow_redirect : true;
   if (!CFproxy) {
     response = await fetch(new_url, request);
   } else {
@@ -93,6 +88,7 @@ async function fetchAndApply(host, request, referer) {
       method: method,
       body: body,
       headers: new_request_headers,
+      redirect: follow_redirect ? 'follow' : 'manual',
     });
   }
 
