@@ -1,1 +1,1 @@
-# This is my CDN repository.
+# This is a repository to store some small utils
