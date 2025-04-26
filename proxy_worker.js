@@ -59,9 +59,9 @@ async function fetchHandler(request) {
     const referer = request.headers.get('referer');
     return fetchAndApply(realUrl, request, { follow_redirect: redirect, referer: referer });
   }
+
   try {
-    const resp = await fetch(ASSET_URL);
-    return makeRes(resp.data, resp.status, resp.headers);
+    return await fetch(ASSET_URL);
   } catch (error) {
     return makeRes('Error:\n' + error, 502);
   }
@@ -94,7 +94,7 @@ async function fetchAndApply(host, request, options = {}) {
 
   let out_headers = new Headers(response.headers);
   if (out_headers.get('Content-Disposition') == 'attachment') out_headers.delete('Content-Disposition');
-  let out_body = await response.body;
+  let out_body = response.body;
 
   out_headers.set('Access-Control-Allow-Methods', 'GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH');
   out_headers.set('Access-Control-Allow-Headers', '*,Authorization');
