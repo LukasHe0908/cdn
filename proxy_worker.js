@@ -37,6 +37,9 @@ async function fetchHandler(request) {
   if (path == 'generate_204') {
     return makeRes('', 204);
   }
+  if (path == 'generate_200') {
+    return makeRes('', 200);
+  }
   // /all/:others
   if (path.startsWith('all/')) {
     path = path.slice(4);
